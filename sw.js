@@ -1,5 +1,5 @@
-const CACHE_STATIC = 'pastoral-static-v4'; // docx library - rarely changes
-const CACHE_APP    = 'pastoral-app-v4';    // app files - change with updates
+const CACHE_STATIC = 'pastoral-static-v5';
+const CACHE_APP    = 'pastoral-app-v5';
 
 const STATIC_ASSETS = ['/docx.iife.js'];
 const APP_ASSETS = [
@@ -8,7 +8,6 @@ const APP_ASSETS = [
   '/plantnet.js', '/sw-register.js', '/manifest.json'
 ];
 
-// Prefix paths with repo base
 const BASE = self.location.pathname.replace(/\/sw\.js$/, '');
 const prefixed = urls => urls.map(u => BASE + u);
 
@@ -35,13 +34,24 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Nu face cache la JS app files - le ia mereu din rețea
+  const url = e.request.url;
+  const isAppJs = ['/app.js','/export.js','/data.js','/plantnet.js','/sw-register.js'].some(f => url.endsWith(f));
+  
+  if (isAppJs) {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(res => {
         if (res && res.status === 200) {
           const clone = res.clone();
-          const isStatic = STATIC_ASSETS.some(u => e.request.url.includes(u));
+          const isStatic = STATIC_ASSETS.some(u => url.includes(u));
           const cacheName = isStatic ? CACHE_STATIC : CACHE_APP;
           caches.open(cacheName).then(c => c.put(e.request, clone));
         }
