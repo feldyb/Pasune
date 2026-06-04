@@ -1,5 +1,5 @@
-const CACHE_STATIC = 'pastoral-static-v3'; // docx library - rarely changes
-const CACHE_APP    = 'pastoral-app-v3';    // app files - change with updates
+const CACHE_STATIC = 'pastoral-static-v4'; // docx library - rarely changes
+const CACHE_APP    = 'pastoral-app-v4';    // app files - change with updates
 
 const STATIC_ASSETS = ['/docx.iife.js'];
 const APP_ASSETS = [
